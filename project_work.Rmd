@@ -1,0 +1,304 @@
+---
+title: "Project"
+author: "Waruna H.R.N.A. 239183M"
+date: "2023-06-30"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(scales)
+library(schoRsch)
+library(xtable)
+```
+
+
+```{r cars}
+# Importing Data
+data <- read.csv('D:/MSC/SEM 2/CS5651 - Statistical Inference/Project/239183M_data_file_1.csv',header = T)
+```
+
+```{r}
+# View the structure of the dataset
+str(data)
+```
+
+```{r}
+summary(data)
+```
+
+```{r}
+data$total_expenditure <- data$average_monthly_expenditure_food.Rs. + data$average_monthly_expenditure_non_food.Rs.
+```
+
+
+```{r}
+# histogram of average_monthly_expenditure_food.Rs.
+ggplot(data, aes(x=average_monthly_expenditure_food.Rs.)) +
+  theme_classic()+
+  labs(
+    title = "Histogram of Average Monthly Expenditure For Food In Rupees\n (sample distribution)",
+    x = "",
+    y = "Frequency"
+  )+
+  geom_histogram(binwidth = 10000, boundary = 0, closed = "left",fill = "blue", color = "black", xlab = '') +
+  scale_x_continuous(breaks = seq(0, 100000, 10000),labels = comma_format())+
+  theme(plot.title = element_text(hjust = 0.5))
+  
+
+```
+
+
+```{r}
+food <- data[,"average_monthly_expenditure_food.Rs."]
+
+sample_size <- 50
+no_of_samples <- 10000
+
+food_distri_means <- c()
+
+for(i in 1:no_of_samples){
+  sample1 <- sample(food,50,replace=T)
+  food_distri_means[i] <- mean(sample1)
+}
+
+```
+
+
+```{r}
+hist(food_distri_means,main = "Histogram of average Monthly expenditure for food.Rs. \n (Bootstrap Distribution)",col = "aquamarine",xlab = '')
+```
+
+```{r}
+paste("Food sample mean:",mean(data$average_monthly_expenditure_food.Rs.))
+```
+
+
+
+# H0: Mean of the food expenditure distribution = 22,130
+# H1: Mean of the food expenditure distribution != 22,130
+```{r}
+z_test_statistic <- (22130 - mean(data$average_monthly_expenditure_food.Rs.))/(sd(food_distri_means))
+```
+
+```{r}
+z_test_statistic
+```
+```{r}
+pnorm(z_test_statistic,0,1,lower.tail = T)
+```
+Since P value is less than 0.05 we do reject Null hypothesis
+
+
+
+
+```{r}
+ggplot(data, aes(x=average_monthly_expenditure_non_food.Rs.)) +
+  theme_classic()+
+  labs(
+    title = "Histogram of Average Monthly Expenditure For non-food In Rupees\n (sample distribution)",
+    x = "",
+    y = "Frequency"
+  )+
+  ggtitle("Histogram of Average Monthly Expenditure \n For non-food In Rupees")+
+  geom_histogram(binwidth = 10000, boundary = 0, closed = "left",fill = "coral1", color = "black") +
+  scale_x_continuous(breaks = seq(0, 150000, 10000),labels = comma_format()) +
+  theme(axis.text.x = element_text(angle = 20),plot.title = element_text(hjust = 0.5))
+```
+
+
+
+```{r}
+non_food <- data[,"average_monthly_expenditure_non_food.Rs."]
+
+sample_size <- 50
+no_of_samples <- 10000
+
+non_food_distri_means <- c()
+
+for(i in 1:no_of_samples){
+  sample1 <- sample(non_food,50,replace=T)
+  non_food_distri_means[i] <- mean(sample1)
+}
+```
+
+
+
+```{r}
+hist(non_food_distri_means,main = "Histogram of average Monthly expenditure for Non food.Rs. \n (Bootstrap Distribution)",col = "bisque1",xlab = "")
+```
+
+```{r}
+mean(mean(data$average_monthly_expenditure_non_food.Rs.))
+```
+
+
+# H0: Mean of the food expenditure distribution = 41,000
+# H1: Mean of the food expenditure distribution != 41,000
+```{r}
+z_test_statistic_non_food <- (41000 - mean(data$average_monthly_expenditure_non_food.Rs.))/(sd(non_food_distri_means))
+```
+
+```{r}
+z_test_statistic_non_food
+```
+
+```{r}
+pnorm(z_test_statistic_non_food,0,1,lower.tail = T)
+```
+Since P value is greater than 0.05 we do not reject Null hypothesis
+
+
+
+```{r}
+# Perform independent two-sample t-test
+result <- t.test(data$average_monthly_expenditure_food.Rs., data$average_monthly_expenditure_non_food.Rs.)
+result
+```
+
+```{r}
+# Create a data frame for the table
+table_data <- data.frame(
+  "Statistic" = c("t-value", "df", "p-value", "95% CI"),
+  "Value" = c(result$statistic, result$parameter, result$p.value, paste("(", result$conf.int[1], ",", result$conf.int[2], ")"))
+)
+
+# Convert the data frame to an xtable object
+table_x <- xtable(table_data)
+
+# Print the xtable object in LaTeX format
+print(table_x, type = "latex")
+```
+
+
+
+
+### House Architecture and related information
+
+```{r}
+# House Built Period
+library(RColorBrewer)
+myPalette <- brewer.pal(5, "Set2") 
+
+pie(table(data$house_built_period),col=myPalette)
+```
+
+```{r}
+ggplot(data, aes(x=house_type)) +
+  ggtitle("Barplot of House Type") +
+  geom_bar(fill = "green", color = "black")+
+  theme(axis.text.x = element_text(size = 8),plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r}
+data["ironing_clothes_behavior"][data["ironing_clothes_behavior"] == "We don’t iron cloths."] <- "don’t iron"
+data["ironing_clothes_behavior"][data["ironing_clothes_behavior"] == "We iron our clothes twice a week."] <- "twice a week"
+data["ironing_clothes_behavior"][data["ironing_clothes_behavior"] == "We iron the clothes weekly."] <- "weekly"
+data["ironing_clothes_behavior"][data["ironing_clothes_behavior"] == "We iron the cloths daily."] <- "daily"
+data["ironing_clothes_behavior"][data["ironing_clothes_behavior"] == "We iron when and where the need arises."] <- "need arises"
+
+
+```
+
+
+
+```{r}
+ironing_clothes <- data[,"ironing_clothes_behavior"]
+table(ironing_clothes)
+```
+
+```{r}
+data["night_lighting_behavior"][data["night_lighting_behavior"] == "We don’t keep any of the lights on when sleeping."] <- "don’t keep any"
+data["night_lighting_behavior"][data["night_lighting_behavior"] == "We keep less than two-night lights on when sleeping"] <- "less than two"
+data["night_lighting_behavior"][data["night_lighting_behavior"] == "We keep more than two lights on when sleeping"] <- "more than two"
+```
+
+
+```{r}
+night_lighting <- data[,"night_lighting_behavior"]
+table(night_lighting)
+```
+
+```{r}
+ironing_clothes_night_lighting <-table(ironing_clothes,night_lighting)
+ironing_clothes_night_lighting
+```
+
+```{r}
+# Convert the data frame to an xtable object
+table_x <- xtable(ironing_clothes_night_lighting)
+
+# Print the xtable object in LaTeX format
+print(table_x, type = "latex")
+```
+
+# H0:night lighting not associated with ironing clothes
+# H1:night lighting associated with ironing clothes
+```{r}
+chisq.test(ironing_clothes, night_lighting, correct=FALSE)
+```
+
+
+```{r}
+library(RColorBrewer)
+myPalette <- brewer.pal(5, "Set2") 
+
+pie(table(data$main_occupation),col=myPalette)
+```
+
+
+```{r}
+library(RColorBrewer)
+myPalette <- brewer.pal(5, "Set2") 
+
+pie(table(data$major_type_of_roof_installation),col=myPalette)
+```
+
+```{r}
+library(RColorBrewer)
+myPalette <- brewer.pal(5, "Set2") 
+
+pie(table(data$outside_walls_material),col=myPalette)
+```
+
+
+
+```{r}
+library(RColorBrewer)
+myPalette <- brewer.pal(5, "Set2") 
+
+pie(table(data$energy_rating_of_appliance_check),col=myPalette,main = "Energy rating appliance check")
+```
+
+```{r}
+table(data$energy_rating_of_appliance_check,data$electricity_meter_overconsumption)
+```
+
+```{r}
+chisq.test(data$energy_rating_of_appliance_check,data$electricity_meter_overconsumption, correct=FALSE)
+```
+
+
+
+```{r}
+#data$wiring_done_by_a_professional_electrician
+data_new <- filter(data, wiring_done_by_a_professional_electrician == 'Yes' | wiring_done_by_a_professional_electrician == 'No')
+```
+
+```{r}
+table(data_new$house_built_period, data_new$wiring_done_by_a_professional_electrician)
+
+```
+
+```{r}
+chisq.test(data_new$house_built_period,data_new$wiring_done_by_a_professional_electrician, correct=FALSE)
+```
+
+
