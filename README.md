@@ -1,1 +1,4 @@
 # Statistical-Inference-Project
+
+This Project investigates the electricity consumption patterns and related factors among households in Sri Lanka, aiming to identify strategies for promoting energy efficiency. The study recognizes the significance of reducing energy consumption and its environmental impact, particularly in a developing country like Sri Lanka. By examining housing characteristics, demographics, and household behaviors, the research explores opportunities to enhance sustainability and decrease electricity
+consumption. The findings will have implications for policymakers, energy planners, and stakeholders involved in promoting energy efficiency. Additionally, this study contributes to the existing knowledge on electricity consumption patterns by providing insights specific to the Sri Lankan context. Please refer to the project report for more details.
